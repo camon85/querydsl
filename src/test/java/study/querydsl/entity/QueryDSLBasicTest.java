@@ -2,6 +2,7 @@ package study.querydsl.entity;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -61,4 +62,33 @@ public class QueryDSLBasicTest {
 
     assertThat(findMember.getUsername()).isEqualTo("member1");
   }
+
+  @Test
+  @DisplayName("where 절 내에서 조건을 and로 연결")
+  void search() {
+    Member findMember = queryFactory
+        .selectFrom(member)
+        .where(member.username.eq("member1")
+            .and(member.age.eq(10)))
+        .fetchOne();
+
+    assertThat(findMember.getUsername()).isEqualTo("member1");
+    assertThat(findMember.getAge()).isEqualTo(10);
+  }
+
+  @Test
+  @DisplayName("where 절 내에서 조건을 콤마로  연결. 이때 null 값은 무시된다.")
+  void searchAndParam() {
+    Member findMember = queryFactory
+        .selectFrom(member)
+        .where(
+            member.username.eq("member1"),
+            (member.age.eq(10)), null
+        )
+        .fetchOne();
+
+    assertThat(findMember.getUsername()).isEqualTo("member1");
+    assertThat(findMember.getAge()).isEqualTo(10);
+  }
+
 }
