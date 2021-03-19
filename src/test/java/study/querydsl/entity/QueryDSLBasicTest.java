@@ -20,7 +20,7 @@ import static study.querydsl.entity.QTeam.team;
 
 @SpringBootTest
 @Transactional
-@Commit
+//@Commit
 public class QueryDSLBasicTest {
 
   @Autowired EntityManager em;
@@ -250,6 +250,49 @@ public class QueryDSLBasicTest {
     assertThat(result)
         .extracting("username")
         .containsExactly("teamA", "teamB");
+  }
+
+  // 회원과 팀을 join 하면서 팀 이름이 teamA인 팀만 join. 회원은 모두 조회
+  // JPQL: select m,t from Member m left join m.team t on t.name = 'teamA'
+  @Test
+  void join_on_filtering() {
+    List<Tuple> result = queryFactory
+        .select(member, team)
+        .from(member)
+        .leftJoin(member.team, team).on(team.name.eq("teamA"))
+        .fetch();
+    for (Tuple tuple : result) {
+      System.out.println("tuple = " + tuple);
+    }
+  }
+
+  // 연관관계 없는 엔티티 외부 조인
+  // 회원의 이름이 팀 이름과 같은 대상 외부 조인
+  @Test
+  void theta_join_on_no_relation() {
+    em.persist(new Member("teamA"));
+    em.persist(new Member("teamB"));
+    em.persist(new Member("teamC"));
+
+    List<Tuple> result = queryFactory
+        .select(member, team)
+        .from(member)
+        .leftJoin(team).on(member.username.eq(team.name))
+        .fetch();
+
+    for (Tuple tuple : result) {
+      System.out.println("tuple = " + tuple);
+    }
+
+    /*
+    tuple = [Member(id=3, username=member1, age=10), null]
+    tuple = [Member(id=4, username=member2, age=20), null]
+    tuple = [Member(id=5, username=member3, age=30), null]
+    tuple = [Member(id=6, username=member4, age=40), null]
+    tuple = [Member(id=7, username=teamA, age=0), Team(id=1, name=teamA)]
+    tuple = [Member(id=8, username=teamB, age=0), Team(id=2, name=teamB)]
+    tuple = [Member(id=9, username=teamC, age=0), null]
+     */
   }
 
 }
