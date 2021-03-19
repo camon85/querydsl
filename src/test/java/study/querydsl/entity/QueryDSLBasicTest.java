@@ -91,4 +91,28 @@ public class QueryDSLBasicTest {
     assertThat(findMember.getAge()).isEqualTo(10);
   }
 
+  @Test
+  void resultFetch() {
+    //    List<Member> fetch = queryFactory
+    //        .selectFrom(member)
+    //        .fetch();
+    //
+    //    Member fetchOne = queryFactory
+    //        .selectFrom(QMember.member)
+    //        .fetchOne();
+    //
+    //    Member fetchFirst = queryFactory
+    //        .selectFrom(QMember.member)
+    //        .fetchFirst();
+
+    //    QueryResults<Member> results = queryFactory
+    //        .selectFrom(member)
+    //        .fetchResults(); // count까지 가져온다.
+    //    results.getTotal();
+    //    List<Member> content = results.getResults();
+
+    long totalCount = queryFactory
+        .selectFrom(member)
+        .fetchCount(); // count쿼리로 변경된다.
+  }
 }
