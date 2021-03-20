@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.QMemberDto;
@@ -31,7 +32,7 @@ import static study.querydsl.entity.QTeam.team;
 
 @SpringBootTest
 @Transactional
-//@Commit
+@Commit
 public class QueryDSLBasicTest {
 
   @Autowired EntityManager em;
@@ -653,6 +654,58 @@ public class QueryDSLBasicTest {
   // BooleanExpression 조합해서 쓸 수도 있다.
   private BooleanExpression allEq(String usernameCond, Integer ageCond) {
     return usernameEq(usernameCond).and(ageEq(ageCond));
+  }
+
+  @Test
+  void bulkUpdate() {
+    // 실행 후
+    // 1 member1 = 10 -> DB member1
+    // 2 member2 = 20 -> DB member2
+    // 3 member3 = 30 -> DB member3
+    // 4 member4 = 40 -> DB member4
+
+    long count = queryFactory
+        .update(member)
+        .set(member.username, "비회원")
+        .where(member.age.lt(28))
+        .execute();
+
+    // 실행 후
+    // 1 member1 = 10 -> DB 비회원
+    // 2 member2 = 20 -> DB 비회원
+    // 3 member3 = 30 -> DB member3
+    // 4 member4 = 40 -> DB member4
+
+    // 필요 시, 영속성 컨텍스트 초기화
+//    em.flush();
+//    em.clear();
+
+    List<Member> result = queryFactory
+        .selectFrom(member)
+        .fetch();
+
+    // 기본적으로 영속성 컨텍스트는 갱신 되어있지 않음.
+    // flush. clear 해야 수정된 결과가 나온다.
+    for (Member member1 : result) {
+      System.out.println("member1 = " + member1);
+    }
+  }
+
+  @Test
+  void bulkAdd() {
+    long count = queryFactory
+        .update(member)
+        .set(member.age, member.age.add(1))
+        .execute();
+
+  }
+
+  @Test
+  void bulkDelete() {
+    long count = queryFactory
+        .delete(member)
+        .where(member.age.gt(18))
+        .execute();
   }
 
 }
