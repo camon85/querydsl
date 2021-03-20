@@ -1,0 +1,9 @@
+### 전체 멤버 조회
+GET http://localhost:8080/v1/members
+Accept: application/json
+
+### 검색 조건
+GET http://localhost:8080/v1/members?teamName=teamB&ageGoe=31&ageLoe=35
+Accept: application/json
+
+###

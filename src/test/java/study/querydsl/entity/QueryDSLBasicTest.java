@@ -32,7 +32,7 @@ import static study.querydsl.entity.QTeam.team;
 
 @SpringBootTest
 @Transactional
-@Commit
+//@Commit
 public class QueryDSLBasicTest {
 
   @Autowired EntityManager em;
