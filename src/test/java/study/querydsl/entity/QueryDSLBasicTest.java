@@ -677,8 +677,8 @@ public class QueryDSLBasicTest {
     // 4 member4 = 40 -> DB member4
 
     // 필요 시, 영속성 컨텍스트 초기화
-//    em.flush();
-//    em.clear();
+    //    em.flush();
+    //    em.clear();
 
     List<Member> result = queryFactory
         .selectFrom(member)
@@ -706,6 +706,50 @@ public class QueryDSLBasicTest {
         .delete(member)
         .where(member.age.gt(18))
         .execute();
+  }
+
+  @Test
+  void sqlFunction() {
+    List<String> result = queryFactory
+        .select(
+            Expressions.stringTemplate(
+                "function('replace', {0}, {1}, {2})",
+                member.username, "member", "M"))
+        .from(member)
+        .fetch();
+
+    for (String s : result) {
+      System.out.println("s = " + s);
+    }
+    /*
+      s = M1
+      s = M2
+      s = M3
+      s = M4
+     */
+
+    /*
+    현재 코드에서는 h2를 사용중이기 때문에
+    org.hibernate.dialect.H2Dialect 에 replace이 registerFunction 되어 있다.
+    custom function을 사용하려면 H2Dialect를 상속받아서 function 등록을 해줘야 한다.
+     */
+  }
+
+  @Test
+  void sqlFunction2() {
+    List<String> result = queryFactory
+        .select(member.username)
+        .from(member)
+        //        .where(member.username.eq(
+        //            Expressions.stringTemplate("function('lower', {0})", member.username)))
+        // ansi 표준에 있는 기본적인 function은 member.username.lower() 이렇게 사용할 수도 있다.
+        .where(member.username.eq(member.username.lower()))
+
+        .fetch();
+
+    for (String s : result) {
+      System.out.println("s = " + s);
+    }
   }
 
 }
