@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static study.querydsl.entity.QMember.member;
 
 @SpringBootTest
 @Transactional
@@ -113,4 +114,13 @@ class MemberRepositoryTest {
     assertThat(result.getNumberOfElements()).isEqualTo(4);
   }
 
+  @Test
+  void querydslPredicateExcutorTest() {
+    Iterable<Member> result = memberRepository.findAll(
+        member.age.between(10, 40).and(member.username.eq("member1")));
+
+    for (Member member : result) {
+      System.out.println("member = " + member);
+    }
+  }
 }
